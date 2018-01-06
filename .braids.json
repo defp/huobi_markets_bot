@@ -1,0 +1,7 @@
+{
+  "vendor/github.com/gorilla/websocket": {
+    "url": "git@github.com:gorilla/websocket.git",
+    "branch": "master",
+    "revision": "d965e9adc66deebadcc7d0c6c7598e2a4baa7838"
+  }
+}
