@@ -57,7 +57,6 @@ func unzip(data []byte) ([]byte, error) {
 func main() {
 	flag.Parse()
 
-	log.SetLevel(log.DebugLevel)
 	if (*dsn) != "" {
 		hook, err := logrus_sentry.NewSentryHook(*dsn, []log.Level{
 			log.PanicLevel, log.FatalLevel, log.ErrorLevel,
@@ -109,7 +108,7 @@ func main() {
 				if err = json.Unmarshal(jsonData, overview); err != nil {
 					log.Error("json Unmarshal: ", err)
 				}
-				log.Debug("receive data ", overview.Ts, len(overview.Data))
+				log.Info("receive data ", overview.Ts, len(overview.Data))
 				lock.Lock()
 				for _, data := range overview.Data {
 					coinClosePrice[data.Symbol] = data
