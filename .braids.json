@@ -1,4 +1,9 @@
 {
+  "vendor/github.com/certifi/gocertifi": {
+    "url": "git@github.com:certifi/gocertifi.git",
+    "branch": "master",
+    "revision": "a4ab0227d360091084658029ec8ae45f989fba3e"
+  },
   "vendor/github.com/evalphobia/logrus_sentry": {
     "url": "git@github.com:evalphobia/logrus_sentry.git",
     "branch": "master",
