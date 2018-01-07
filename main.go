@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"log"
 	"net/url"
 	"os"
 	"os/signal"
@@ -14,9 +13,13 @@ import (
 	"github.com/gorilla/websocket"
 	"io/ioutil"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
+var tg_token = flag.String("tg_token", "", "telegram token")
+var lastMarketOverview *MarketOverview
 
 type Ticker struct {
 	Open   float64
@@ -46,13 +49,12 @@ func unzip(data []byte) ([]byte, error) {
 
 func main() {
 	flag.Parse()
-	log.SetFlags(0)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
 	u := url.URL{Scheme: "wss", Host: *addr, Path: "/ws"}
-	log.Printf("connecting to %s", u.String())
+	log.Info("connecting to %s", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
@@ -71,7 +73,7 @@ func main() {
 		for {
 			_, data, err := c.ReadMessage()
 			if err != nil {
-				log.Println("read error:", err)
+				log.Error("read error:", err)
 				return
 			}
 			jsonData, err := unzip(data)
@@ -79,24 +81,19 @@ func main() {
 			if strings.Contains(text, "ping") {
 				rspText := strings.Replace(text, "ping", "pong", 1)
 				if err = c.WriteMessage(websocket.TextMessage, []byte(rspText)); err != nil {
-					log.Println(err)
+					log.Error("WriteMessage: ", err)
 				}
 			} else {
 				overview := &MarketOverview{}
 				if err = json.Unmarshal(jsonData, overview); err != nil {
-					log.Println(err)
+					log.Error("json Unmarshal: ", err)
 				}
-
-				for _, data := range overview.Data {
-					if strings.Contains(data.Symbol, "usdt") {
-						log.Println(data.Symbol, data.Close, data.Amount, data.Vol)
-					}
-				}
+				lastMarketOverview = overview
 			}
 		}
 	}()
 
-	ticker := time.NewTicker(2 * time.Second)
+	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -104,13 +101,18 @@ func main() {
 		case _ = <-ticker.C:
 			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.trade.detail", "id": "id1"}`))
 			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.detail", "id": "id2"}`))
+			for _, data := range lastMarketOverview.Data {
+				if strings.Contains(data.Symbol, "usdt") {
+					log.Debug(data.Symbol, data.Close)
+				}
+			}
 		case <-interrupt:
-			log.Println("interrupt")
+			log.Debug("interrupt")
 			// To cleanly close a connection, a client should send a close
 			// frame and wait for the server to close the connection.
 			err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 			if err != nil {
-				log.Println("write close:", err)
+				log.Error("write close: ", err)
 				return
 			}
 			select {
