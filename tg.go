@@ -1,16 +1,16 @@
 package main
 
 import (
-	"net/url"
 	"bytes"
 	"net/http"
+	"net/url"
 
 	"io/ioutil"
 
 	log "github.com/sirupsen/logrus"
 )
 
-func sendSendmessage(text string) {
+func sendTG(text string) {
 	params := url.Values{}
 	params.Set("chat_id", "@huobi_pro_price")
 	params.Set("text", text)
@@ -21,9 +21,9 @@ func sendSendmessage(text string) {
 	client := &http.Client{}
 
 	// Create request
-	url := "https://api.telegram.org/bot"+ *tgToken + "/sendMessage"
+	url := "https://api.telegram.org/bot" + *tgToken + "/sendMessage"
 	req, err := http.NewRequest("POST", url, body)
-	if err!= nil {
+	if err != nil {
 		log.Error("NewRequest error: ", err)
 		return
 	}
@@ -39,12 +39,8 @@ func sendSendmessage(text string) {
 		return
 	}
 
-	// Read Response Body
-	respBody, _ := ioutil.ReadAll(resp.Body)
-
-	// Display Results
-	log.Debug("response Status : ", resp.Status)
-	log.Debug("response Headers : ", resp.Header)
-	log.Debug("response Body : ", string(respBody))
+	if resp.StatusCode != 200 {
+		respBody, _ := ioutil.ReadAll(resp.Body)
+		log.Error("request error", respBody)
+	}
 }
-

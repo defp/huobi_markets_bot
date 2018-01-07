@@ -14,9 +14,9 @@ import (
 	"io/ioutil"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/evalphobia/logrus_sentry"
-
+	log "github.com/sirupsen/logrus"
+	"fmt"
 )
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
@@ -29,7 +29,7 @@ type Ticker struct {
 	Open   float64
 	Close  float64
 	Low    float64
-	Hight  float64
+	High  float64
 	Amount float64
 	Count  int64
 	Vol    float64
@@ -54,6 +54,7 @@ func unzip(data []byte) ([]byte, error) {
 func main() {
 	flag.Parse()
 
+	log.SetLevel(log.DebugLevel)
 	if (*dsn) != "" {
 		hook, err := logrus_sentry.NewSentryHook(*dsn, []log.Level{
 			log.PanicLevel, log.FatalLevel, log.ErrorLevel,
@@ -63,14 +64,15 @@ func main() {
 			return
 		}
 		log.AddHook(hook)
-
+	} else {
+		log.Debug("dsn empty")
 	}
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
 	u := url.URL{Scheme: "wss", Host: *addr, Path: "/ws"}
-	log.Info("connecting to %s", u.String())
+	log.Info("connecting to ", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
@@ -117,13 +119,14 @@ func main() {
 		case _ = <-ticker.C:
 			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.trade.detail", "id": "id1"}`))
 			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.detail", "id": "id2"}`))
+			tgText := ""
+
 			for _, data := range lastMarketOverview.Data {
 				if strings.Contains(data.Symbol, "usdt") {
-					log.Debug(data.Symbol, data.Close)
+					tgText = tgText + fmt.Sprintf("%s $%f\n", data.Symbol, data.Close)
 				}
 			}
-
-
+			sendTG(tgText)
 
 		case <-interrupt:
 			log.Debug("interrupt")
