@@ -22,6 +22,7 @@ import (
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
 var tgToken = flag.String("tgToken", "", "telegram token")
 var dsn = flag.String("dsn", "", "sentry dsn")
+var second = flag.Int("second", 60, "telegram send drution")
 
 var coinClosePrice = make(map[string]TickerData)
 
@@ -115,7 +116,7 @@ func main() {
 		}
 	}()
 
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(time.Duration(*second) * time.Second)
 	defer ticker.Stop()
 
 	for {
