@@ -83,12 +83,14 @@ func main() {
 				}
 			} else {
 				overview := &MarketOverview{}
-				json.Unmarshal(jsonData, overview)
-				//log.Println("receive text: ", text)
-				log.Println(overview.Ch, overview.Ts)
+				if err = json.Unmarshal(jsonData, overview); err != nil {
+					log.Println(err)
+				}
 
 				for _, data := range overview.Data {
-					log.Println(data.Symbol, data.Close)
+					if strings.Contains(data.Symbol, "usdt") {
+						log.Println(data.Symbol, data.Close, data.Amount, data.Vol)
+					}
 				}
 			}
 		}
