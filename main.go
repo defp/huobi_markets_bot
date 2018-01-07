@@ -23,7 +23,7 @@ var addr = flag.String("addr", "api.huobi.pro", "http service address")
 var tgToken = flag.String("tgToken", "", "telegram token")
 var dsn = flag.String("dsn", "", "sentry dsn")
 
-var lastMarketOverview *MarketOverview
+var coinClosePrice = make(map[string]Ticker)
 
 type Ticker struct {
 	Open   float64
@@ -106,12 +106,16 @@ func main() {
 				if err = json.Unmarshal(jsonData, overview); err != nil {
 					log.Error("json Unmarshal: ", err)
 				}
-				lastMarketOverview = overview
+				log.Debug("receive data ", overview.Ts, len(overview.Data))
+				for _, data := range overview.Data {
+					coinClosePrice[data.Symbol] = data
+				}
+
 			}
 		}
 	}()
 
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -119,14 +123,16 @@ func main() {
 		case _ = <-ticker.C:
 			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.trade.detail", "id": "id1"}`))
 			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.detail", "id": "id2"}`))
-			tgText := ""
 
-			for _, data := range lastMarketOverview.Data {
-				if strings.Contains(data.Symbol, "usdt") {
-					coin := strings.Replace(data.Symbol, "usdt", "", 1)
-					tgText = tgText + fmt.Sprintf("%s $%f\n", coin, data.Close)
-				}
+			coins := []string{"btc", "bch", "xrp", "eth", "ltc", "dash", "eos", "etc", "omg", "zec", "snt", "neo", "qtum", "hsr"}
+
+			tgText := ""
+			for _, coin := range coins {
+				closePrice := coinClosePrice[coin + "usdt"].Close
+				coinName := strings.ToUpper(coin)
+				tgText = tgText + fmt.Sprintf("%s $%f\n", coinName, closePrice)
 			}
+
 			sendTG(tgText)
 
 		case <-interrupt:
