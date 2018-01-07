@@ -10,6 +10,7 @@ import (
 
 	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"github.com/gorilla/websocket"
 	"io/ioutil"
 	"strings"
@@ -17,8 +18,22 @@ import (
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
 
-type Heartbeat struct {
-	Ping int64 `json:"ping"`
+type Ticker struct {
+	Open   float64
+	Close  float64
+	Low    float64
+	Hight  float64
+	Amount float64
+	Count  int64
+	Vol    float64
+	Symbol string
+}
+
+type MarketOverview struct {
+	Ch     string
+	Ts     int64
+	Status string
+	Data   []Ticker
 }
 
 func unzip(data []byte) ([]byte, error) {
@@ -50,7 +65,7 @@ func main() {
 	go func() {
 		defer c.Close()
 		defer close(done)
-		
+
 		c.WriteMessage(websocket.TextMessage, []byte(`{"sub": "market.overview", "id": "id2"}`))
 
 		for {
@@ -67,12 +82,19 @@ func main() {
 					log.Println(err)
 				}
 			} else {
-				log.Println("receive text: ", text)
+				overview := &MarketOverview{}
+				json.Unmarshal(jsonData, overview)
+				//log.Println("receive text: ", text)
+				log.Println(overview.Ch, overview.Ts)
+
+				for _, data := range overview.Data {
+					log.Println(data.Symbol, data.Close)
+				}
 			}
 		}
 	}()
 
-	ticker := time.NewTicker(2*time.Second)
+	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 
 	for {
