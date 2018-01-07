@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"github.com/evalphobia/logrus_sentry"
 	log "github.com/sirupsen/logrus"
+	"sync"
 )
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
@@ -25,6 +26,7 @@ var dsn = flag.String("dsn", "", "sentry dsn")
 var second = flag.Int("second", 60, "telegram send drution")
 
 var coinClosePrice = make(map[string]TickerData)
+var lock sync.RWMutex
 
 type TickerData struct {
 	Open   float64
@@ -108,10 +110,11 @@ func main() {
 					log.Error("json Unmarshal: ", err)
 				}
 				log.Debug("receive data ", overview.Ts, len(overview.Data))
+				lock.Lock()
 				for _, data := range overview.Data {
 					coinClosePrice[data.Symbol] = data
 				}
-
+				lock.Unlock()
 			}
 		}
 	}()
@@ -128,12 +131,13 @@ func main() {
 			coins := []string{"btc", "bch", "xrp", "eth", "ltc", "eos", "etc", "omg", "zec", "snt", "neo", "hsr", "dash", "qtum"}
 
 			tgText := ""
+			lock.RLock()
 			for _, coin := range coins {
 				closePrice := coinClosePrice[coin+"usdt"].Close
 				coinName := strings.ToUpper(coin)
 				tgText = tgText + fmt.Sprintf("%s $%f\n", coinName, closePrice)
 			}
-
+			lock.RUnlock()
 			sendTG(tgText)
 
 		case <-interrupt:
