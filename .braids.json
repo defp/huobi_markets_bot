@@ -1,4 +1,9 @@
 {
+  "vendor/github.com/evalphobia/logrus_sentry": {
+    "url": "git@github.com:evalphobia/logrus_sentry.git",
+    "branch": "master",
+    "revision": "13ba9278e2adf1537fd94143a6b6a1c0dc008ac7"
+  },
   "vendor/github.com/gorilla/websocket": {
     "url": "git@github.com:gorilla/websocket.git",
     "branch": "master",
