@@ -18,7 +18,7 @@ import (
 )
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
-var tg_token = flag.String("tg_token", "", "telegram token")
+var tgToken = flag.String("tgToken", "", "telegram token")
 var lastMarketOverview *MarketOverview
 
 type Ticker struct {
@@ -106,6 +106,9 @@ func main() {
 					log.Debug(data.Symbol, data.Close)
 				}
 			}
+
+
+
 		case <-interrupt:
 			log.Debug("interrupt")
 			// To cleanly close a connection, a client should send a close
