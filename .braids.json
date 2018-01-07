@@ -4,6 +4,11 @@
     "branch": "master",
     "revision": "13ba9278e2adf1537fd94143a6b6a1c0dc008ac7"
   },
+  "vendor/github.com/getsentry/raven-go": {
+    "url": "git@github.com:getsentry/raven-go.git",
+    "branch": "master",
+    "revision": "32a13797442ccb601b11761d74232773c1402d14"
+  },
   "vendor/github.com/gorilla/websocket": {
     "url": "git@github.com:gorilla/websocket.git",
     "branch": "master",
