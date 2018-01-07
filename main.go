@@ -123,7 +123,8 @@ func main() {
 
 			for _, data := range lastMarketOverview.Data {
 				if strings.Contains(data.Symbol, "usdt") {
-					tgText = tgText + fmt.Sprintf("%s $%f\n", data.Symbol, data.Close)
+					coin := strings.Replace(data.Symbol, "usdt", "", 1)
+					tgText = tgText + fmt.Sprintf("%s $%f\n", coin, data.Close)
 				}
 			}
 			sendTG(tgText)
