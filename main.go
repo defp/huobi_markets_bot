@@ -14,9 +14,9 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"fmt"
 	"github.com/evalphobia/logrus_sentry"
 	log "github.com/sirupsen/logrus"
-	"fmt"
 )
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
@@ -29,7 +29,7 @@ type TickerData struct {
 	Open   float64
 	Close  float64
 	Low    float64
-	High  float64
+	High   float64
 	Amount float64
 	Count  int64
 	Vol    float64
@@ -128,7 +128,7 @@ func main() {
 
 			tgText := ""
 			for _, coin := range coins {
-				closePrice := coinClosePrice[coin + "usdt"].Close
+				closePrice := coinClosePrice[coin+"usdt"].Close
 				coinName := strings.ToUpper(coin)
 				tgText = tgText + fmt.Sprintf("%s $%f\n", coinName, closePrice)
 			}
