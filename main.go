@@ -50,6 +50,7 @@ func main() {
 	go func() {
 		defer c.Close()
 		defer close(done)
+
 		for {
 			_, data, err := c.ReadMessage()
 			if err != nil {
@@ -58,25 +59,25 @@ func main() {
 			}
 			jsonData, err := unzip(data)
 			text := string(jsonData)
-			log.Println("receive text: ", text)
 			if strings.Contains(text, "ping") {
 				rspText := strings.Replace(text, "ping", "pong", 1)
 				if err = c.WriteMessage(websocket.TextMessage, []byte(rspText)); err != nil {
 					log.Println(err)
 				}
 			} else {
-				//TODO
+				log.Println("receive text: ", text)
 			}
 		}
 	}()
 
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(2*time.Second)
 	defer ticker.Stop()
 
 	for {
 		select {
-		case t := <-ticker.C:
-			log.Println(t.String())
+		case _ = <-ticker.C:
+			c.WriteMessage(websocket.TextMessage, []byte(`{"sub": "market.xrpusdt.trade.detail", "id": "id1"}`))
+			c.WriteMessage(websocket.TextMessage, []byte(`{"sub": "market.xrpusdt.detail", "id": "id2"}`))
 		case <-interrupt:
 			log.Println("interrupt")
 			// To cleanly close a connection, a client should send a close
