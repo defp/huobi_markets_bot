@@ -15,10 +15,14 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/evalphobia/logrus_sentry"
+
 )
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
 var tgToken = flag.String("tgToken", "", "telegram token")
+var dsn = flag.String("dsn", "", "sentry dsn")
+
 var lastMarketOverview *MarketOverview
 
 type Ticker struct {
@@ -49,6 +53,18 @@ func unzip(data []byte) ([]byte, error) {
 
 func main() {
 	flag.Parse()
+
+	if (*dsn) != "" {
+		hook, err := logrus_sentry.NewSentryHook(*dsn, []log.Level{
+			log.PanicLevel, log.FatalLevel, log.ErrorLevel,
+		})
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		log.AddHook(hook)
+
+	}
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
