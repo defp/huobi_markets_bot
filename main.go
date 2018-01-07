@@ -57,6 +57,7 @@ func unzip(data []byte) ([]byte, error) {
 func main() {
 	flag.Parse()
 
+	log.SetOutput(os.Stdout)
 	if (*dsn) != "" {
 		hook, err := logrus_sentry.NewSentryHook(*dsn, []log.Level{
 			log.PanicLevel, log.FatalLevel, log.ErrorLevel,
