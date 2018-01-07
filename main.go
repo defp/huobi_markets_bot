@@ -23,9 +23,9 @@ var addr = flag.String("addr", "api.huobi.pro", "http service address")
 var tgToken = flag.String("tgToken", "", "telegram token")
 var dsn = flag.String("dsn", "", "sentry dsn")
 
-var coinClosePrice = make(map[string]Ticker)
+var coinClosePrice = make(map[string]TickerData)
 
-type Ticker struct {
+type TickerData struct {
 	Open   float64
 	Close  float64
 	Low    float64
@@ -40,7 +40,7 @@ type MarketOverview struct {
 	Ch     string
 	Ts     int64
 	Status string
-	Data   []Ticker
+	Data   []TickerData
 }
 
 func unzip(data []byte) ([]byte, error) {
