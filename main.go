@@ -50,6 +50,8 @@ func main() {
 	go func() {
 		defer c.Close()
 		defer close(done)
+		
+		c.WriteMessage(websocket.TextMessage, []byte(`{"sub": "market.overview", "id": "id2"}`))
 
 		for {
 			_, data, err := c.ReadMessage()
@@ -76,8 +78,8 @@ func main() {
 	for {
 		select {
 		case _ = <-ticker.C:
-			c.WriteMessage(websocket.TextMessage, []byte(`{"sub": "market.xrpusdt.trade.detail", "id": "id1"}`))
-			c.WriteMessage(websocket.TextMessage, []byte(`{"sub": "market.xrpusdt.detail", "id": "id2"}`))
+			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.trade.detail", "id": "id1"}`))
+			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.detail", "id": "id2"}`))
 		case <-interrupt:
 			log.Println("interrupt")
 			// To cleanly close a connection, a client should send a close
