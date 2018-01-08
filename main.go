@@ -28,10 +28,10 @@ var dsn = flag.String("dsn", "", "sentry dsn")
 var second = flag.Int("second", 1, "telegram send drution")
 var tg = flag.Bool("tg", false, "sendTG mode")
 
-var coinClosePrice = make(map[string]TickerData)
+var coinClosePrice = make(map[string]tickerData)
 var lock sync.RWMutex
 
-type TickerData struct {
+type tickerData struct {
 	Open   float64
 	Close  float64
 	Low    float64
@@ -42,11 +42,11 @@ type TickerData struct {
 	Symbol string
 }
 
-type MarketOverview struct {
+type marketOverview struct {
 	Ch     string
 	Ts     int64
 	Status string
-	Data   []TickerData
+	Data   []tickerData
 }
 
 func unzip(data []byte) ([]byte, error) {
@@ -112,7 +112,7 @@ func main() {
 					log.Error("WriteMessage: ", err)
 				}
 			} else {
-				overview := &MarketOverview{}
+				overview := &marketOverview{}
 				if err = json.Unmarshal(jsonData, overview); err != nil {
 					log.Error("json Unmarshal: ", err)
 				}
@@ -140,10 +140,10 @@ func main() {
 			tgText := ""
 			lock.RLock()
 			for _, coin := range coins {
-				tickerData := coinClosePrice[coin+"usdt"]
+				td := coinClosePrice[coin+"usdt"]
 				coinName := padRight(strings.ToUpper(coin), 4, " ")
-				change := (tickerData.Close - tickerData.Open) / tickerData.Open * 100
-				closePrice := padRight(fmt.Sprintf("%.2f", tickerData.Close), 9, " ")
+				change := (td.Close - td.Open) / td.Open * 100
+				closePrice := padRight(fmt.Sprintf("%.2f", td.Close), 9, " ")
 
 				var riseText string
 				if change > 0 {
