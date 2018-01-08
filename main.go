@@ -37,6 +37,7 @@ type TickerData struct {
 	Count  int64
 	Vol    float64
 	Symbol string
+	Range float64
 }
 
 type MarketOverview struct {
@@ -112,6 +113,8 @@ func main() {
 				log.Info("receive data ", overview.Ts, len(overview.Data))
 				lock.Lock()
 				for _, data := range overview.Data {
+					preClosePrice := coinClosePrice[data.Symbol].Close
+					data.Range = data.Close - preClosePrice
 					coinClosePrice[data.Symbol] = data
 				}
 				lock.Unlock()
@@ -133,9 +136,18 @@ func main() {
 			tgText := ""
 			lock.RLock()
 			for _, coin := range coins {
-				closePrice := fmt.Sprintf("%.2f", coinClosePrice[coin+"usdt"].Close)
+				tickerData := coinClosePrice[coin+"usdt"]
+				closePrice := fmt.Sprintf("%.2f", tickerData.Close)
 				coinName := strings.ToUpper(coin)
-				tgText = tgText + fmt.Sprintf("%s $%s\n", coinName, closePrice)
+
+				var riseText string
+				if tickerData.Range > 0 {
+					riseText = fmt.Sprintf("Up $%s", fmt.Sprintf("%.2f",tickerData.Range))
+				} else {
+					riseText = fmt.Sprintf("Down $%s", fmt.Sprintf("%.2f",tickerData.Range))
+				}
+
+				tgText = tgText + fmt.Sprintf("%s $%s %s\n", coinName, closePrice, riseText)
 			}
 			lock.RUnlock()
 			sendTG(tgText)
