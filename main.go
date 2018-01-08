@@ -10,14 +10,16 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
-	"github.com/gorilla/websocket"
 	"io/ioutil"
 	"strings"
 
+	"github.com/gorilla/websocket"
+
 	"fmt"
+	"sync"
+
 	"github.com/evalphobia/logrus_sentry"
 	log "github.com/sirupsen/logrus"
-	"sync"
 )
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
@@ -38,7 +40,6 @@ type TickerData struct {
 	Count  int64
 	Vol    float64
 	Symbol string
-	Range  float64
 }
 
 type MarketOverview struct {
@@ -59,9 +60,8 @@ func unzip(data []byte) ([]byte, error) {
 func main() {
 	flag.Parse()
 	log.SetOutput(os.Stdout)
- 	//log.Info(*addr, *tgToken, *dsn, *second, *tg)
 
- 	flag.VisitAll(func(i *flag.Flag) {
+	flag.VisitAll(func(i *flag.Flag) {
 		log.Info(i.Name, "  ", i.Value)
 	})
 
@@ -119,8 +119,6 @@ func main() {
 				log.Info("receive data ", overview.Ts, len(overview.Data))
 				lock.Lock()
 				for _, data := range overview.Data {
-					preClosePrice := coinClosePrice[data.Symbol].Close
-					data.Range = data.Close - preClosePrice
 					coinClosePrice[data.Symbol] = data
 				}
 				lock.Unlock()
@@ -144,17 +142,17 @@ func main() {
 			for _, coin := range coins {
 				tickerData := coinClosePrice[coin+"usdt"]
 				coinName := padRight(strings.ToUpper(coin), 4, " ")
-
+				change := (tickerData.Close - tickerData.Open) / tickerData.Open * 100
 				closePrice := padRight(fmt.Sprintf("%.2f", tickerData.Close), 9, " ")
 
 				var riseText string
-				if tickerData.Range > 0 {
+				if change > 0 {
 					upText := padRight("up", 4, " ")
-					riseText = fmt.Sprintf(upText+" $%s", fmt.Sprintf("%.2f", tickerData.Range))
-				} else if tickerData.Range < 0{
-					riseText = fmt.Sprintf("Down $%s", fmt.Sprintf("%.2f", tickerData.Range))
+					riseText = fmt.Sprintf(upText+" %s", fmt.Sprintf("%.2f%%", change))
+				} else if change < 0 {
+					riseText = fmt.Sprintf("Down %s", fmt.Sprintf("%.2f%%", change))
 				} else {
-					riseText = fmt.Sprintf("---- $%s", fmt.Sprintf("%.2f", tickerData.Range))
+					riseText = fmt.Sprintf("---- %s", fmt.Sprintf("%.2f%%", change))
 				}
 
 				tgText = tgText + fmt.Sprintf("%s $%s %s\n", coinName, closePrice, riseText)
