@@ -24,6 +24,7 @@ var addr = flag.String("addr", "api.huobi.pro", "http service address")
 var tgToken = flag.String("tgToken", "", "telegram token")
 var dsn = flag.String("dsn", "", "sentry dsn")
 var second = flag.Int("second", 60, "telegram send drution")
+var debug = flag.Bool("debug", false, "debug mode")
 
 var coinClosePrice = make(map[string]TickerData)
 var lock sync.RWMutex
@@ -144,7 +145,7 @@ func main() {
 				var riseText string
 				if tickerData.Range > 0 {
 					upText := padRight("up", 4, " ")
-					riseText = fmt.Sprintf(upText + " $%s", fmt.Sprintf("%.2f", tickerData.Range))
+					riseText = fmt.Sprintf(upText+" $%s", fmt.Sprintf("%.2f", tickerData.Range))
 				} else {
 					riseText = fmt.Sprintf("Down $%s", fmt.Sprintf("%.2f", tickerData.Range))
 				}
@@ -152,8 +153,12 @@ func main() {
 				tgText = tgText + fmt.Sprintf("%s $%s %s\n", coinName, closePrice, riseText)
 			}
 			lock.RUnlock()
-			//sendTG(tgText)
-			sendDebug(tgText)
+			if *debug {
+				sendDebug(tgText)
+			} else {
+				sendTG(tgText)
+
+			}
 
 		case <-interrupt:
 			log.Debug("interrupt")
