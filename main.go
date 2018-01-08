@@ -133,9 +133,9 @@ func main() {
 			tgText := ""
 			lock.RLock()
 			for _, coin := range coins {
-				closePrice := coinClosePrice[coin+"usdt"].Close
+				closePrice := fmt.Sprintf("%.2f", coinClosePrice[coin+"usdt"].Close)
 				coinName := strings.ToUpper(coin)
-				tgText = tgText + fmt.Sprintf("%s $%f\n", coinName, closePrice)
+				tgText = tgText + fmt.Sprintf("%s $%s\n", coinName, closePrice)
 			}
 			lock.RUnlock()
 			sendTG(tgText)
