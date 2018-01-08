@@ -16,6 +16,7 @@ func sendTG(text string) {
 	params.Set("chat_id", "@huobi_pro_price")
 	params.Set("text", text)
 	params.Set("disable_notification", "true")
+	params.Set("parse_mode", "Markdown")
 	body := bytes.NewBufferString(params.Encode())
 
 	// Create client

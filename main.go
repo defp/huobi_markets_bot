@@ -23,8 +23,8 @@ import (
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
 var tgToken = flag.String("tgToken", "", "telegram token")
 var dsn = flag.String("dsn", "", "sentry dsn")
-var second = flag.Int("second", 60, "telegram send drution")
-var debug = flag.Bool("debug", false, "debug mode")
+var second = flag.Int("second", 1, "telegram send drution")
+var tg = flag.Bool("tg", false, "sendTG mode")
 
 var coinClosePrice = make(map[string]TickerData)
 var lock sync.RWMutex
@@ -58,8 +58,13 @@ func unzip(data []byte) ([]byte, error) {
 
 func main() {
 	flag.Parse()
-
 	log.SetOutput(os.Stdout)
+ 	//log.Info(*addr, *tgToken, *dsn, *second, *tg)
+
+ 	flag.VisitAll(func(i *flag.Flag) {
+		log.Info(i.Name, "  ", i.Value)
+	})
+
 	if (*dsn) != "" {
 		hook, err := logrus_sentry.NewSentryHook(*dsn, []log.Level{
 			log.PanicLevel, log.FatalLevel, log.ErrorLevel,
@@ -153,11 +158,14 @@ func main() {
 				tgText = tgText + fmt.Sprintf("%s $%s %s\n", coinName, closePrice, riseText)
 			}
 			lock.RUnlock()
-			if *debug {
-				sendDebug(tgText)
-			} else {
-				sendTG(tgText)
 
+			if *tg {
+				tgText = "```\n" + tgText + "\n```"
+				sendTG(tgText)
+				log.Info("send telegram")
+			} else {
+				log.Info("send debug output")
+				sendDebug(tgText)
 			}
 
 		case <-interrupt:
