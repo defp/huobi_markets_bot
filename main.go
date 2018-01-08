@@ -151,8 +151,10 @@ func main() {
 				if tickerData.Range > 0 {
 					upText := padRight("up", 4, " ")
 					riseText = fmt.Sprintf(upText+" $%s", fmt.Sprintf("%.2f", tickerData.Range))
-				} else {
+				} else if tickerData.Range < 0{
 					riseText = fmt.Sprintf("Down $%s", fmt.Sprintf("%.2f", tickerData.Range))
+				} else {
+					riseText = fmt.Sprintf("---- $%s", fmt.Sprintf("%.2f", tickerData.Range))
 				}
 
 				tgText = tgText + fmt.Sprintf("%s $%s %s\n", coinName, closePrice, riseText)
