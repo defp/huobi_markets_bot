@@ -7,6 +7,7 @@ import (
 
 	"io/ioutil"
 
+	"fmt"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -43,4 +44,8 @@ func sendTG(text string) {
 		respBody, _ := ioutil.ReadAll(resp.Body)
 		log.Error("request error", respBody)
 	}
+}
+
+func sendDebug(text string) {
+	fmt.Print(text)
 }
