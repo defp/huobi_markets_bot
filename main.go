@@ -161,6 +161,7 @@ func main() {
 
 			if *tg {
 				tgText = "```\n" + tgText + "\n```"
+				tgText = "*USDT*\n" + tgText
 				sendTG(tgText)
 				log.Info("send telegram")
 			} else {
