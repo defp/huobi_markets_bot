@@ -147,11 +147,11 @@ func main() {
 
 				var riseText string
 				if change > 0 {
-					riseText = fmt.Sprintf("↗ %s", fmt.Sprintf("+%.2f%%", change))
+					riseText = fmt.Sprintf("+%.2f%%", change)
 				} else if change < 0 {
-					riseText = fmt.Sprintf("↘ %s", fmt.Sprintf("%.2f%%", change))
+					riseText = fmt.Sprintf("%.2f%%", change)
 				} else {
-					riseText = fmt.Sprintf("→ %s", fmt.Sprintf("%.2f%%", change))
+					riseText = fmt.Sprintf("=%.2f%%", change)
 				}
 
 				tgText = tgText + fmt.Sprintf("%s $%s %s\n", coinName, closePrice, riseText)
