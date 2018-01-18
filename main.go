@@ -7,15 +7,11 @@ import (
 	"os/signal"
 	"time"
 
-	"bytes"
-	"compress/gzip"
 	"encoding/json"
-	"io/ioutil"
 	"strings"
 
 	"github.com/gorilla/websocket"
 
-	"fmt"
 	"sync"
 
 	"github.com/evalphobia/logrus_sentry"
@@ -47,14 +43,6 @@ type marketOverview struct {
 	Ts     int64
 	Status string
 	Data   []tickerData
-}
-
-func unzip(data []byte) ([]byte, error) {
-	r, err := gzip.NewReader(bytes.NewReader(data))
-	if err != nil {
-		return nil, err
-	}
-	return ioutil.ReadAll(r)
 }
 
 func main() {
@@ -135,37 +123,44 @@ func main() {
 			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.trade.detail", "id": "id1"}`))
 			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.detail", "id": "id2"}`))
 
-			coins := []string{"btc", "bch", "xrp", "eth", "ltc", "eos", "etc", "omg", "zec", "snt", "neo", "hsr", "dash", "qtum"}
+			usdtCoins := []string{"btc", "bch", "xrp", "eth", "ltc", "eos", "etc", "omg", "zec", "snt", "neo", "hsr", "dash", "qtum"}
+			ethCoins := []string{"eos", "omg"}
+			btcCoins := []string{"bch", "xrp", "eth", "ltc", "dash", "eos", "etc", "omg", "zec"}
 
-			tgText := ""
 			lock.RLock()
-			for _, coin := range coins {
-				td := coinClosePrice[coin+"usdt"]
-				coinName := padRight(strings.ToUpper(coin), 4, " ")
-				change := (td.Close - td.Open) / td.Open * 100
-				closePrice := padRight(fmt.Sprintf("%.2f", td.Close), 8, " ")
-
-				var riseText string
-				if change > 0 {
-					riseText = fmt.Sprintf("+%.2f%%", change)
-				} else if change < 0 {
-					riseText = fmt.Sprintf("%.2f%%", change)
-				} else {
-					riseText = fmt.Sprintf("=%.2f%%", change)
-				}
-
-				tgText = tgText + fmt.Sprintf("%s $%s %s\n", coinName, closePrice, riseText)
+			usdtText := ""
+			for _, coin := range usdtCoins {
+				usdtText += getCoinText("usdt", coin, "%.2f")
 			}
+
+			ethText := ""
+			for _, coin := range ethCoins {
+				ethText += getCoinText("eth", coin, "%.6f")
+			}
+
+			btcText := ""
+			for _, coin := range btcCoins {
+				btcText += getCoinText("btc", coin, "%.6f")
+			}
+
 			lock.RUnlock()
 
+			usdtText = "```\n" + usdtText + "\n```"
+			usdtText = "*USDT*\n" + usdtText
+
+			ethText = "```\n" + ethText + "\n```"
+			ethText = "*ETH*\n" + ethText
+
+			btcText = "```\n" + btcText + "\n```"
+			btcText = "*BTC*\n" + btcText
+			txt := usdtText + btcText + ethText
+
 			if *tg {
-				tgText = "```\n" + tgText + "\n```"
-				tgText = "*USDT*\n" + tgText
-				sendTG(tgText)
+				sendTG(txt)
 				log.Info("send telegram")
 			} else {
 				log.Info("send debug output")
-				sendDebug(tgText)
+				sendDebug(txt)
 			}
 
 		case <-interrupt:
