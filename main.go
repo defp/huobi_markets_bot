@@ -123,7 +123,7 @@ func main() {
 			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.trade.detail", "id": "id1"}`))
 			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.detail", "id": "id2"}`))
 
-			usdtCoins := []string{"btc", "bch", "xrp", "eth", "ltc", "eos", "etc", "omg", "zec", "snt", "neo", "hsr", "dash", "qtum"}
+			usdtCoins := []string{"btc", "bch", "xrp", "eth", "ltc", "dash", "eos", "etc", "omg", "zec"}
 			ethCoins := []string{"eos", "omg"}
 			btcCoins := []string{"bch", "xrp", "eth", "ltc", "dash", "eos", "etc", "omg", "zec"}
 
