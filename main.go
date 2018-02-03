@@ -120,10 +120,7 @@ func main() {
 	for {
 		select {
 		case _ = <-ticker.C:
-			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.trade.detail", "id": "id1"}`))
-			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.detail", "id": "id2"}`))
-
-			usdtCoins := []string{"btc", "bch", "xrp", "eth", "ltc", "dash", "eos", "etc", "omg", "zec"}
+			usdtCoins := []string{"btc", "bch", "eth", "etc", "ltc", "eos", "xrp", "omg", "zec", "neo", "dash"}
 			btcCoins := []string{"bch", "xrp", "eth", "ltc", "dash", "eos", "etc", "omg", "zec"}
 
 			lock.RLock()
