@@ -121,7 +121,6 @@ func main() {
 		select {
 		case _ = <-ticker.C:
 			usdtCoins := []string{"btc", "bch", "eth", "etc", "ltc", "eos", "xrp", "omg", "zec", "neo", "dash"}
-			btcCoins := []string{"bch", "xrp", "eth", "ltc", "dash", "eos", "etc", "omg", "zec"}
 
 			lock.RLock()
 			usdtText := ""
@@ -129,26 +128,17 @@ func main() {
 				usdtText += getCoinText("usdt", coin, "%.2f")
 			}
 
-			btcText := ""
-			for _, coin := range btcCoins {
-				btcText += getCoinText("btc", coin, "%.6f")
-			}
-
 			lock.RUnlock()
 
 			usdtText = "```\n" + usdtText + "\n```"
 			usdtText = "*USDT*\n" + usdtText
 
-			btcText = "```\n" + btcText + "\n```"
-			btcText = "*BTC*\n" + btcText
-			txt := usdtText + btcText
-
 			if *tg {
-				sendTG(txt)
+				sendTG(usdtText)
 				log.Info("send telegram")
 			} else {
 				log.Info("send debug output")
-				sendDebug(txt)
+				sendDebug(usdtText)
 			}
 
 		case <-interrupt:
