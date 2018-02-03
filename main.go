@@ -124,18 +124,12 @@ func main() {
 			//c.WriteMessage(websocket.TextMessage, []byte(`{"req": "market.xrpusdt.detail", "id": "id2"}`))
 
 			usdtCoins := []string{"btc", "bch", "xrp", "eth", "ltc", "dash", "eos", "etc", "omg", "zec"}
-			ethCoins := []string{"eos", "omg"}
 			btcCoins := []string{"bch", "xrp", "eth", "ltc", "dash", "eos", "etc", "omg", "zec"}
 
 			lock.RLock()
 			usdtText := ""
 			for _, coin := range usdtCoins {
 				usdtText += getCoinText("usdt", coin, "%.2f")
-			}
-
-			ethText := ""
-			for _, coin := range ethCoins {
-				ethText += getCoinText("eth", coin, "%.6f")
 			}
 
 			btcText := ""
@@ -148,12 +142,9 @@ func main() {
 			usdtText = "```\n" + usdtText + "\n```"
 			usdtText = "*USDT*\n" + usdtText
 
-			ethText = "```\n" + ethText + "\n```"
-			ethText = "*ETH*\n" + ethText
-
 			btcText = "```\n" + btcText + "\n```"
 			btcText = "*BTC*\n" + btcText
-			txt := usdtText + btcText + ethText
+			txt := usdtText + btcText
 
 			if *tg {
 				sendTG(txt)
