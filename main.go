@@ -120,7 +120,10 @@ func main() {
 	for {
 		select {
 		case _ = <-ticker.C:
-			usdtCoins := []string{"btc", "bch", "eth", "etc", "ltc", "eos", "xrp", "omg", "zec", "neo", "dash"}
+			usdtCoins := []string{
+				"btc", "bch", "eth", "etc", "ltc",
+				"eos", "xrp", "omg", "zec", "neo", "dash",
+				"ht", "qtum", "hsr"}
 
 			lock.RLock()
 			usdtText := ""
