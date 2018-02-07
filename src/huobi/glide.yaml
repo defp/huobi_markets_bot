@@ -1,4 +1,4 @@
-package: huobi_bot
+package: huobi
 import:
 - package: github.com/gorilla/websocket
   version: ^1.2.0
