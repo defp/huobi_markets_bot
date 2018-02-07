@@ -17,7 +17,6 @@ import (
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
 var tgToken = flag.String("tgToken", "", "telegram token")
 var second = flag.Int("second", 1, "telegram send drution")
-var tg = flag.Bool("tg", false, "sendTG mode")
 
 var coinClosePrice = make(map[string]tickerData)
 var lock sync.RWMutex
@@ -117,7 +116,7 @@ func main() {
 			usdtText = "```\n" + usdtText + "\n```"
 			usdtText = "*USDT*\n" + usdtText
 
-			if *tg {
+			if *tgToken != "" {
 				sendTG(usdtText)
 			} else {
 				sendDebug(usdtText)
