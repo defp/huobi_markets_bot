@@ -1,26 +1,21 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
+	"log"
 	"net/url"
 	"os"
 	"os/signal"
+	"strings"
+	"sync"
 	"time"
 
-	"encoding/json"
-	"strings"
-
 	"github.com/gorilla/websocket"
-
-	"sync"
-
-	"github.com/evalphobia/logrus_sentry"
-	log "github.com/sirupsen/logrus"
 )
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
 var tgToken = flag.String("tgToken", "", "telegram token")
-var dsn = flag.String("dsn", "", "sentry dsn")
 var second = flag.Int("second", 1, "telegram send drution")
 var tg = flag.Bool("tg", false, "sendTG mode")
 
@@ -47,30 +42,16 @@ type marketOverview struct {
 
 func main() {
 	flag.Parse()
-	log.SetOutput(os.Stdout)
 
 	flag.VisitAll(func(i *flag.Flag) {
-		log.Info(i.Name, "  ", i.Value)
+		log.Println(i.Name, "  ", i.Value)
 	})
-
-	if (*dsn) != "" {
-		hook, err := logrus_sentry.NewSentryHook(*dsn, []log.Level{
-			log.PanicLevel, log.FatalLevel, log.ErrorLevel,
-		})
-		if err != nil {
-			log.Error(err)
-			return
-		}
-		log.AddHook(hook)
-	} else {
-		log.Debug("dsn empty")
-	}
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
 	u := url.URL{Scheme: "wss", Host: *addr, Path: "/ws"}
-	log.Info("connecting to ", u.String())
+	log.Println("connecting to ", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
@@ -89,7 +70,7 @@ func main() {
 		for {
 			_, data, err := c.ReadMessage()
 			if err != nil {
-				log.Error("read error:", err)
+				log.Println("read error: ", err)
 				return
 			}
 			jsonData, err := unzip(data)
@@ -97,14 +78,14 @@ func main() {
 			if strings.Contains(text, "ping") {
 				rspText := strings.Replace(text, "ping", "pong", 1)
 				if err = c.WriteMessage(websocket.TextMessage, []byte(rspText)); err != nil {
-					log.Error("WriteMessage: ", err)
+					log.Println("WriteMessage error: ", err)
 				}
 			} else {
 				overview := &marketOverview{}
 				if err = json.Unmarshal(jsonData, overview); err != nil {
-					log.Error("json Unmarshal: ", err)
+					log.Println("json Unmarshal error: ", err)
 				}
-				log.Info("receive data ", overview.Ts, len(overview.Data))
+				log.Println("receive data ", overview.Ts, len(overview.Data))
 				lock.Lock()
 				for _, data := range overview.Data {
 					coinClosePrice[data.Symbol] = data
@@ -138,19 +119,14 @@ func main() {
 
 			if *tg {
 				sendTG(usdtText)
-				log.Info("send telegram")
 			} else {
-				log.Info("send debug output")
 				sendDebug(usdtText)
 			}
 
 		case <-interrupt:
-			log.Debug("interrupt")
-			// To cleanly close a connection, a client should send a close
-			// frame and wait for the server to close the connection.
 			err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 			if err != nil {
-				log.Error("write close: ", err)
+				log.Println("write error : ", err)
 				return
 			}
 			select {

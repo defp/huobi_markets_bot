@@ -2,13 +2,11 @@ package main
 
 import (
 	"bytes"
+	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
-
-	"io/ioutil"
-
-	"fmt"
-	log "github.com/sirupsen/logrus"
 )
 
 func sendTG(text string) {
@@ -26,7 +24,7 @@ func sendTG(text string) {
 	url := "https://api.telegram.org/bot" + *tgToken + "/sendMessage"
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
-		log.Error("NewRequest error: ", err)
+		log.Println("NewRequest error: ", err)
 		return
 	}
 
@@ -37,13 +35,13 @@ func sendTG(text string) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Error("Failure : ", err)
+		log.Println("Failure error: ", err)
 		return
 	}
 
 	if resp.StatusCode != 200 {
 		respBody, _ := ioutil.ReadAll(resp.Body)
-		log.Error("request error", respBody)
+		log.Println("request error: ", respBody)
 	}
 }
 
