@@ -14,11 +14,13 @@ import (
 
 	"sync"
 
+	"github.com/evalphobia/logrus_sentry"
 	log "github.com/sirupsen/logrus"
 )
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
 var tgToken = flag.String("tgToken", "", "telegram token")
+var dsn = flag.String("dsn", "", "sentry dsn")
 var second = flag.Int("second", 1, "telegram send drution")
 var tg = flag.Bool("tg", false, "sendTG mode")
 
@@ -50,6 +52,19 @@ func main() {
 	flag.VisitAll(func(i *flag.Flag) {
 		log.Info(i.Name, "  ", i.Value)
 	})
+
+	if (*dsn) != "" {
+		hook, err := logrus_sentry.NewSentryHook(*dsn, []log.Level{
+			log.PanicLevel, log.FatalLevel, log.ErrorLevel,
+		})
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		log.AddHook(hook)
+	} else {
+		log.Debug("dsn empty")
+	}
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
