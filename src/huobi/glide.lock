@@ -1,0 +1,25 @@
+hash: 85a0e61c17d2be21ec1875edda6ea0aee68b6ff1dd763cf9cc0bcb215220c4dc
+updated: 2018-01-07T22:00:58.266711+08:00
+imports:
+- name: github.com/certifi/gocertifi
+  version: a4ab0227d360091084658029ec8ae45f989fba3e
+- name: github.com/evalphobia/logrus_sentry
+  version: 13ba9278e2adf1537fd94143a6b6a1c0dc008ac7
+- name: github.com/getsentry/raven-go
+  version: 32a13797442ccb601b11761d74232773c1402d14
+- name: github.com/gorilla/websocket
+  version: ea4d1f681babbce9545c9c5f3d5194a789c89f5b
+- name: github.com/pkg/errors
+  version: e881fd58d78e04cf6d0de1217f8707c8cc2249bc
+- name: github.com/sirupsen/logrus
+  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
+- name: golang.org/x/crypto
+  version: d585fd2cc9195196078f516b69daff6744ef5e84
+  subpackages:
+  - ssh/terminal
+- name: golang.org/x/sys
+  version: 83801418e1b59fb1880e363299581ee543af32ca
+  subpackages:
+  - unix
+  - windows
+testImports: []
