@@ -1,5 +1,5 @@
 #!/bin/bash
 
 git pull origin master
-go build .
+make
 supervisorctl restart huobi_bot
