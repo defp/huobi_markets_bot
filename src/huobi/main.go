@@ -42,10 +42,6 @@ type marketOverview struct {
 func main() {
 	flag.Parse()
 
-	flag.VisitAll(func(i *flag.Flag) {
-		log.Println(i.Name, "  ", i.Value)
-	})
-
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
@@ -84,7 +80,6 @@ func main() {
 				if err = json.Unmarshal(jsonData, overview); err != nil {
 					log.Println("json Unmarshal error: ", err)
 				}
-				log.Println("receive data ", overview.Ts, len(overview.Data))
 				lock.Lock()
 				for _, data := range overview.Data {
 					coinClosePrice[data.Symbol] = data
