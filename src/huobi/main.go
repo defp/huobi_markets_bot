@@ -103,7 +103,7 @@ func main() {
 			usdtCoins := []string{
 				"btc", "bch", "eth", "etc", "ltc",
 				"eos", "xrp", "omg", "zec", "neo", "dash",
-				"ht", "qtum", "hsr", "dta", "let", "theta",
+				"ht", "qtum", "hsr", "dta", "let",
 				"snt", "cvc", "smt", "ven", "elf", "xem"}
 
 			lock.RLock()
