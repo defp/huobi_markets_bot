@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -43,8 +42,4 @@ func sendTG(text string) {
 		respBody, _ := ioutil.ReadAll(resp.Body)
 		log.Println("request error: ", respBody)
 	}
-}
-
-func sendDebug(text string) {
-	fmt.Print(text)
 }

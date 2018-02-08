@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/gosuri/uilive"
 )
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
@@ -92,6 +94,13 @@ func main() {
 	ticker := time.NewTicker(time.Duration(*second) * time.Second)
 	defer ticker.Stop()
 
+	var writer *uilive.Writer
+	if *tgToken == "" {
+		writer = uilive.New()
+		writer.Start()
+		defer writer.Stop()
+	}
+
 	for {
 		select {
 		case _ = <-ticker.C:
@@ -102,20 +111,18 @@ func main() {
 				"snt", "cvc", "smt", "ven", "elf", "xem"}
 
 			lock.RLock()
-			usdtText := ""
+			text := ""
 			for _, coin := range usdtCoins {
-				usdtText += getCoinText("usdt", coin, "%.2f")
+				text += getCoinText("usdt", coin, "%.2f")
 			}
 
 			lock.RUnlock()
 
-			usdtText = "```\n" + usdtText + "\n```"
-			usdtText = "*USDT*\n" + usdtText
-
-			if *tgToken != "" {
-				sendTG(usdtText)
+			if writer == nil {
+				mdText := "*USDT*\n```\n" + text + "\n```"
+				sendTG(mdText)
 			} else {
-				sendDebug(usdtText)
+				fmt.Fprintln(writer, text)
 			}
 
 		case <-interrupt:
