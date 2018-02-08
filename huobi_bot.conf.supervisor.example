@@ -1,0 +1,10 @@
+[program:huobi_bot]
+command=/home/lidashuang/huobi_markets_bot/bin/huobi -tgToken xxx -second 30
+autostart=true
+autorestart=true
+stdout_logfile=/home/lidashuang/huobi_markets_bot/bot.log
+stdout_logfile_maxbytes=50MB
+stdout_logfile_backups=50
+stderr_logfile=/home/lidashuang/huobi_markets_bot/bot.error.log
+user=lidashuang
+directory=/home/lidashuang/huobi_markets_bot
