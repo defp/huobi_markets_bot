@@ -1,0 +1,1 @@
+web: bin/huobi -tgToken $token -second $second
