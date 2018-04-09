@@ -47,6 +47,8 @@ func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
+	go ginWeb()
+
 	u := url.URL{Scheme: "wss", Host: *addr, Path: "/ws"}
 	log.Println("connecting to ", u.String())
 
