@@ -1,0 +1,17 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/gorilla/websocket",
+			"repository": "https://github.com/gorilla/websocket",
+			"revision": "eb925808374e5ca90c83401a40d711dc08c0c0f6",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/gosuri/uilive",
+			"repository": "https://github.com/gosuri/uilive",
+			"revision": "ac356e6e42cd31fcef8e6aec13ae9ed6fe87713e",
+			"branch": "master"
+		}
+	]
+}
