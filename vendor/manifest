@@ -39,12 +39,6 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/gosuri/uilive",
-			"repository": "https://github.com/gosuri/uilive",
-			"revision": "ac356e6e42cd31fcef8e6aec13ae9ed6fe87713e",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/manucorporat/stats",
 			"repository": "https://github.com/manucorporat/stats",
 			"revision": "3ba42d56d227cf2a6086b63baba5e00669235853",
