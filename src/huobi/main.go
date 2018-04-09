@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -13,7 +12,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/gosuri/uilive"
 )
 
 var addr = flag.String("addr", "api.huobi.pro", "http service address")
@@ -22,6 +20,7 @@ var second = flag.Int("second", 1, "telegram send drution")
 
 var coinClosePrice = make(map[string]tickerData)
 var lock sync.RWMutex
+var lastSendText = ""
 
 type tickerData struct {
 	Open   float64
@@ -96,13 +95,6 @@ func main() {
 	ticker := time.NewTicker(time.Duration(*second) * time.Second)
 	defer ticker.Stop()
 
-	var writer *uilive.Writer
-	if *tgToken == "" {
-		writer = uilive.New()
-		writer.Start()
-		defer writer.Stop()
-	}
-
 	for {
 		select {
 		case _ = <-ticker.C:
@@ -119,12 +111,9 @@ func main() {
 			}
 
 			lock.RUnlock()
-
-			if writer == nil {
-				mdText := "*USDT*\n```\n" + text + "\n```"
-				sendTG(mdText)
-			} else {
-				fmt.Fprintln(writer, text)
+			lastSendText = text
+			if *tgToken != "" {
+				sendTG("*USDT*\n```\n" + text + "\n```")
 			}
 
 		case <-interrupt:
